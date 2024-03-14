@@ -1,48 +1,34 @@
-credit<-read.csv("credit_data.csv")
-str(credit)
+loan<-read.csv("credit_data.csv")
+str(loan)
 library(caret)
 library(ggplot2)
-# Subset the dataset to include only relevant columns
-credit_subset <- credit[, c('Creditability', 'Account.Balance', 'Purpose', 'Credit.Amount', 'Length.of.current.employment', 'Age..years.', 'Sex...Marital.Status', 'Occupation')]
-
-# Define a normalization function
-normalize <- function(x) {
-  return((x - min(x)) / (max(x) - min(x)))
+loan.subset<-loan[c('Creditability','Account.Balance','Purpose','Credit.Amount','Length.of.current.employment','Age..years.','Sex...Marital.Status','Occupation')]
+normalize<-function(x)
+{
+  return((x-min(x))/(max(x)-min(x)))
 }
 
-# Normalize the subset of the credit dataset
-credit_subset_n <- as.data.frame(lapply(credit_subset[, -1], normalize))
-credit_subset_n
-# Split the dataset into training and testing sets
+loan.subset.n<-as.data.frame(lapply(loan.subset[,2:8],normalize))
+
 set.seed(123)
-train_indices <- sample(1:nrow(credit_subset_n), size = nrow(credit_subset_n) * 0.7, replace = FALSE)
+dat.d<-sample(1:nrow(loan.subset.n),size = nrow(loan.subset.n)*0.7,replace = FALSE)
+train.loan<-loan.subset[dat.d,]
+test.loan<-loan.subset[-dat.d,]
+train.loan_labels<-loan.subset[dat.d,1]
+test.loan_labels<-loan.subset[-dat.d,1]
 
-train_data <- credit_subset_n[train_indices, ]
-test_data <- credit_subset_n[-train_indices, ]
+library(class)
+knn.26<-knn(train=train.loan,test = test.loan,cl=train.loan_labels,k=26)
 
-train_data
-test_data
+ACC.26<-100*sum(test.loan_labels==knn.26)/nrow(test.loan_labels)
 
-
-train_labels <- credit_subset[train_indices, 1]
-test_labels <- credit_subset[-train_indices, 1]
-
-train_labels
-test_labels
-
-
-# Train the KNN model with optimal k value
-optimal_k <- 10  # Assuming optimal k value is 10 (determined from the accuracy vs. k plot)
-knn_model <- knn(train = train_data[, -1], test = test_data[, -1], cl = train_labels, k = optimal_k)
-
-# Predict loan approval for test data
-predictions <- knn_model
-
-plot(k.optm,type='b',xlab='k feature',ylab='accuracy',col="red",borders(colour = "yellow"))
-
-# Compare predictions with actual labels
-accuracy <- mean(predictions == test_labels)
-cat("Accuracy:", accuracy, "\n")
-
-
-
+i=1
+k.optm=1
+for(i in 1:28){
+  knn.mod<-knn(train = train.loan,test = test.loan,cl=train.loan_labels,k=i)
+  k.optm[i]<-100*sum(test.loan_labels==knn.mod)/NROW(test.loan_labels)
+  k=i
+  cat(k,'=',k.optm[i],'
+       ')
+}
+plot(k.optm,type='b',xlab='k feature',ylab='accuracy')
