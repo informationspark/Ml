@@ -1,4 +1,4 @@
-credit<-read.csv("D:\\Education Content\\BHC\\Sem 4\\ML\\Lab\\hands-on\\dataset\\credit_data.csv")
+credit<-read.csv("credit_data.csv")
 str(credit)
 library(caret)
 library(ggplot2)
